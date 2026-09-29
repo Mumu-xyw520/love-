@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>给你的专属惊喜</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    min-height: 100vh;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    overflow: hidden;
+    position: relative;
+    background:
+      radial-gradient(circle at 20% 20%, rgba(255, 182, 193, 0.55), transparent 40%),
+      radial-gradient(circle at 80% 10%, rgba(255, 218, 185, 0.45), transparent 45%),
+      radial-gradient(circle at 50% 90%, rgba(255, 154, 158, 0.35), transparent 50%),
+      linear-gradient(135deg, #ffeef4 0%, #ffd6e7 45%, #ffc5d9 100%);
+  }
+
+  /* 背景漂浮柔光 */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 15% 30%, rgba(255, 255, 255, 0.6), transparent 30%),
+      radial-gradient(circle at 85% 70%, rgba(255, 255, 255, 0.5), transparent 35%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .scene {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    width: 88%;
+    max-width: 640px;
+    padding: 48px 36px;
+    border-radius: 28px;
+    background: rgba(255, 255, 255, 0.38);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    box-shadow:
+      0 20px 50px rgba(255, 105, 157, 0.25),
+      0 0 0 1px rgba(255, 255, 255, 0.6) inset;
+    animation: fadeInUp 1.1s ease both;
+  }
+
+  .title {
+    font-size: 34px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #ff4d8d, #ff758c, #ffb199);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin-bottom: 18px;
+    text-shadow: 0 0 25px rgba(255, 111, 155, 0.35);
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: #a9657a;
+    margin-bottom: 28px;
+    letter-spacing: 4px;
+  }
+
+  .message {
+    font-size: 18px;
+    color: #5a3a4a;
+    line-height: 2;
+    min-height: 210px;
+    text-align: left;
+    padding: 10px 4px;
+    white-space: pre-wrap;
+  }
+
+  .message .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 18px;
+    background: #ff4d8d;
+    margin-left: 4px;
+    vertical-align: middle;
+    animation: blink 0.8s infinite;
+  }
+
+  .btn {
+    margin-top: 32px;
+    padding: 14px 42px;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff6fa5, #ff4d8d, #ff758c);
+    background-size: 200% 200%;
+    box-shadow:
+      0 10px 25px rgba(255, 77, 141, 0.45),
+      0 0 0 1px rgba(255, 255, 255, 0.4) inset;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-position 0.4s ease;
+    animation: gradientShift 4s ease infinite;
+  }
+
+  .btn:hover {
+    transform: translateY(-3px) scale(1.04);
+    box-shadow:
+      0 15px 30px rgba(255, 77, 141, 0.55),
+      0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    background-position: right center;
+  }
+
+  .tip {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #b0788c;
+    letter-spacing: 2px;
+  }
+
+  /* 爱心样式升级 */
+  .heart {
+    position: absolute;
+    top: -40px;
+    color: #ff4d8d;
+    user-select: none;
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: fall linear infinite;
+    filter: drop-shadow(0 0 6px rgba(255, 77, 141, 0.7));
+  }
+
+  .heart::before {
+    content: "❤";
+    font-size: inherit;
+    position: relative;
+    z-index: 1;
+  }
+
+  .heart::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 182, 193, 0.55), transparent 70%);
+    z-index: 0;
+  }
+
+  /* 点击爆发爱心 */
+  .burst {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    color: #ff4d8d;
+    font-size: 16px;
+    pointer-events: none;
+    animation: burst 1.2s ease-out forwards;
+    filter: drop-shadow(0 0 8px rgba(255, 77, 141, 0.8));
+    z-index: 20;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -40%);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: left center; }
+    50% { background-position: right center; }
+  }
+
+  @keyframes fall {
+    0% {
+      transform: translateY(0) rotate(0deg) scale(0.8);
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) rotate(360deg) scale(1.1);
+      opacity: 0;
+    }
+  }
+
+  @keyframes burst {
+    0% {
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 1;
+    }
+    100% {
+      transform: translate(var(--tx), var(--ty)) scale(1.2);
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      padding: 36px 24px;
+    }
+    .title {
+      font-size: 28px;
+    }
+    .message {
+      font-size: 16px;
+    }
+  }
+</style>
+</head>
+
+<body>
+  <div class="scene" id="scene"></div>
+
+  <div class="container">
+    <div class="title">给最可爱最可爱的肖雅雯</div>
+    <div class="subtitle">TO THE ONE I LOVE</div>
+    <div class="message" id="text"></div>
+    <button class="btn" onclick="showLove()">点我收下心动</button>
+    <div class="tip">点击页面任意位置，爱心会为你绽放</div>
+  </div>
+
+  <!-- 背景音乐 -->
+  <audio id="bgm" loop src="https://music.163.com/song/media/outer/url?id=1367368884.mp3"></audio>
+
+  <script>
+    const words =
+      "遇见你，是我最想珍藏的意外。\n" +
+      "我不想只做你生命里的过客，\n" +
+      "而是想陪你把每一天，\n" +
+      "都过成值得回忆的样子。\n\n" +
+      "以后不管是晴天还是雨天，\n" +
+      "我都想牵着你的手，\n" +
+      "一起去看更多风景。\n\n" +
+      "所以，\n" +
+      "愿意一直一直和我在一起吗？";
+
+    const text = document.getElementById("text");
+    let i = 0;
+
+    function type() {
+      if (i < words.length) {
+        text.innerHTML = words.substring(0, i + 1) + '<span class="cursor"></span>';
+        i++;
+        setTimeout(type, 140);
+      } else {
+        text.innerHTML = words;
+      }
+    }
+
+    window.addEventListener("load", () => {
+      setTimeout(type, 400);
+    });
+
+    // 持续飘落爱心
+    function createHeart() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.fontSize = (Math.random() * 18 + 14) + "px";
+      heart.style.animationDuration = (Math.random() * 4 + 4) + "s";
+      heart.style.animationDelay = Math.random() * 2 + "s";
+      document.getElementById("scene").appendChild(heart);
+      setTimeout(() => heart.remove(), 9000);
+    }
+
+    setInterval(createHeart, 280);
+
+    // 点击绽放爱心
+    function burstLove(x, y) {
+      const count = 24;
+      for (let j = 0; j < count; j++) {
+        const heart = document.createElement("div");
+        heart.className = "burst";
+        heart.textContent = "❤";
+        heart.style.left = x + "px";
+        heart.style.top = y + "px";
+        heart.style.fontSize = (Math.random() * 14 + 16) + "px";
+
+        const angle = (Math.PI * 2 * j) / count + Math.random() * 0.4;
+        const distance = Math.random() * 120 + 80;
+        heart.style.setProperty("--tx", Math.cos(angle) * distance + "px");
+        heart.style.setProperty("--ty", Math.sin(angle) * distance + "px");
+
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 1200);
+      }
+    }
+
+    function showLove() {
+      burstLove(
+        window.innerWidth / 2,
+        window.innerHeight / 2
+      );
+
+      for (let j = 0; j < 60; j++) {
+        setTimeout(createHeart, j * 40);
+      }
+
+      setTimeout(() => {
+        alert("我认真地喜欢你，也想认真地陪你走下去。");
+      }, 700);
+    }
+
+    // 点击页面播放音乐并爆发爱心
+    document.addEventListener("click", function (e) {
+      const bgm = document.getElementById("bgm");
+      if (bgm.paused) {
+        bgm.play().catch(() => {});
+      }
+      burstLove(e.clientX, e.clientY);
+    });
+  </script>
+</body>
+</html>
